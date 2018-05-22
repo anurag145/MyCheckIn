@@ -68,20 +68,22 @@ public class MainActivity extends AppCompatActivity {
             public void onContentChanged(Object content) {
                 if(content!=null)
                 {
+                    Calendar calendar = Calendar.getInstance();
+                    SimpleDateFormat mdformat = new SimpleDateFormat("HH:mm:ss");
+                    String strtime = mdformat.format(calendar.getTime());
 
-                    Long ts= System.currentTimeMillis()/1000;
                     SharedPreferences sharedPreferences=getSharedPreferences("Log",0);
                     SharedPreferences.Editor editor= sharedPreferences.edit();
                     if(sharedPreferences.getString("CheckIn",null)==null)
-                    {   databaseReference.child(UserInfo.getSingleton().Date).child("CheckIn").setValue(ts);
+                    {   databaseReference.child(UserInfo.getSingleton().Date).child("CheckIn").setValue(strtime);
                         databaseReference.child(UserInfo.getSingleton().Date).child("CheckOut").setValue("NA");
-                        editor.putString("CheckIn", ts.toString());
+                        editor.putString("CheckIn", strtime);
                         editor.apply();
 
                     }
                     else {
-                        databaseReference.child(UserInfo.getSingleton().Date).child("CheckOut").setValue(ts);
-                        editor.putString("CheckOut", ts.toString());
+                        databaseReference.child(UserInfo.getSingleton().Date).child("CheckOut").setValue(strtime);
+                        editor.putString("CheckOut", strtime);
                         editor.apply();
                     }
                     textView.setText("If this takes longer than 5 seconds close the app and try again");
