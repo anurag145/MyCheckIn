@@ -40,10 +40,11 @@ public class MainActivity extends AppCompatActivity {
   private WebView webView;
   private TextView textView;
   private ValueEventListener val;
-  private Boolean bool=false;
+
   private RecyclerView mRecyclerView;
   private RecyclerView.LayoutManager  layoutManager;
   private CustomAdapter  customAdapter;
+  boolean s1=false,s2=false;
   private int l;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         databaseReference= FirebaseDatabase
                 .getInstance()
                 .getReference(UserInfo.getSingleton().Username+"-"+UserInfo.getSingleton().UserID);
-              setValueEventListener();
+
         proximityContentManager = new ProximityContentManager(this,
                 Arrays.asList(
                         new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 45290, 64760),
@@ -75,14 +76,46 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences sharedPreferences=getSharedPreferences("Log",0);
                     SharedPreferences.Editor editor= sharedPreferences.edit();
                     if(sharedPreferences.getString("CheckIn",null)==null)
-                    {   databaseReference.child(UserInfo.getSingleton().Date).child("CheckIn").setValue(strtime);
-                        databaseReference.child(UserInfo.getSingleton().Date).child("CheckOut").setValue("NA");
+                    {   databaseReference.child(UserInfo.getSingleton().Date).child("CheckIn").setValue(strtime, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                            if(databaseError==null){
+                                textView.setText("Loading logs.....");
+                                s1=true;
+                                if(s1&&s2)
+                                {
+                                    setValueEventListener();
+                                }
+                            }
+
+                        }
+                    });
+                        databaseReference.child(UserInfo.getSingleton().Date).child("CheckOut").setValue("NA", new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                if(databaseError==null){
+                                    textView.setText("Loading logs.....");
+                                    s2=true;
+                                    if(s1&&s2)
+                                    {
+                                        setValueEventListener();
+                                    }
+                                }
+                            }
+                        });
                         editor.putString("CheckIn", strtime);
                         editor.apply();
 
                     }
                     else {
-                        databaseReference.child(UserInfo.getSingleton().Date).child("CheckOut").setValue(strtime);
+                        databaseReference.child(UserInfo.getSingleton().Date).child("CheckOut").setValue(strtime, new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                if(databaseError==null)
+                                    textView.setText("Loading logs.....");
+                                    setValueEventListener();
+                            }
+                        });
                         editor.putString("CheckOut", strtime);
                         editor.apply();
                     }
@@ -98,12 +131,12 @@ public class MainActivity extends AppCompatActivity {
        val = new ValueEventListener() {
            @Override
            public void onDataChange(DataSnapshot dataSnapshot) {
-               if (dataSnapshot.getValue() != null) {
+
                    l = 0;
                    ArrayList<HashMap<String, String>> arr = new ArrayList<>();
                    Log.e("OnChange", dataSnapshot.getValue().toString());
 
-                   if (bool) {
+
                        textView.setText("Successful...!!");
                        webView.setVisibility(View.GONE);
                        for (DataSnapshot child : dataSnapshot.getChildren()) {
@@ -130,10 +163,7 @@ public class MainActivity extends AppCompatActivity {
                        mRecyclerView.setLayoutManager(layoutManager);
                        mRecyclerView.setAdapter(customAdapter);
 
-                   } else
-                       bool = true;
-               } else
-                   bool = true;
+
            }
 
            @Override
