@@ -48,7 +48,7 @@ public class Launcher extends AppCompatActivity {
         {
 
             UserInfo.getSingleton().UserID=sharedPreferences.getString("UserID",null);
-            Intent intent=  new Intent(Launcher.this,MainActivity.class);
+            Intent intent=  new Intent(Launcher.this,Decider.class);
             startActivity(intent);
             finish();
         }
@@ -70,7 +70,7 @@ public class Launcher extends AppCompatActivity {
                         editor.putString("Username",UserInfo.getSingleton().Username);
                         editor.putString("UserID",UserInfo.getSingleton().UserID);
                         editor.apply();
-                        Intent intent=  new Intent(Launcher.this,MainActivity.class);
+                        Intent intent=  new Intent(Launcher.this,Decider.class);
                         startActivity(intent);
                         finish();
                     }

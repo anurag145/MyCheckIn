@@ -52,23 +52,26 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         textView=findViewById(R.id.text);
         webView= findViewById(R.id.webview);
-        webView.setVerticalScrollBarEnabled(false);
-        webView.loadData(UserInfo.getSingleton().s,"text/html",null);
-        databaseReference= FirebaseDatabase
-                .getInstance()
-                .getReference(UserInfo.getSingleton().Username+"-"+UserInfo.getSingleton().UserID);
-
         proximityContentManager = new ProximityContentManager(this,
                 Arrays.asList(
                         new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 45290, 64760),
                         new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 50484, 16475),
                         new BeaconID("B9407F30-F5F8-466E-AFF9-25556B57FE6D", 1068, 47383)),
                 new EstimoteCloudBeaconDetailsFactory());
-        proximityContentManager.setListener(new ProximityContentManager.Listener() {
+        webView.setVerticalScrollBarEnabled(false);
+        webView.loadData(UserInfo.getSingleton().s,"text/html",null);
+        databaseReference= FirebaseDatabase
+                .getInstance()
+                .getReference(UserInfo.getSingleton().Username+"-"+UserInfo.getSingleton().UserID);
+        int l = getIntent().getIntExtra("Type",1);
+        if(l==0)
+        setValueEventListener();
+        else
+            proximityContentManager.setListener(new ProximityContentManager.Listener() {
             @Override
             public void onContentChanged(Object content) {
                 if(content!=null)
-                {
+                {  proximityContentManager.stopContentUpdates();
                     Calendar calendar = Calendar.getInstance();
                     SimpleDateFormat mdformat = new SimpleDateFormat("HH:mm:ss");
                     String strtime = mdformat.format(calendar.getTime());
@@ -120,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                         editor.apply();
                     }
                     textView.setText("If this takes longer than 5 seconds close the app and try again");
-                    proximityContentManager.stopContentUpdates();
+
                 }
 
             }
@@ -132,37 +135,39 @@ public class MainActivity extends AppCompatActivity {
            @Override
            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                   l = 0;
+               l = 0;
 
-                   ArrayList<String> In = new ArrayList<>();
-                   ArrayList<String> Out = new ArrayList<>();
-                   ArrayList<String> Date = new ArrayList<>();
-                   Log.e("OnChange", dataSnapshot.getValue().toString());
+               ArrayList<String> In = new ArrayList<>();
+               ArrayList<String> Out = new ArrayList<>();
+               ArrayList<String> Date = new ArrayList<>();
 
-
-                       textView.setText("Successful...!!");
-                       webView.setVisibility(View.GONE);
-                       DataSnapshot temp= dataSnapshot.child("CheckIn");
-                       for(DataSnapshot child : temp.getChildren())
-                       {
-                               In.add(child.getValue().toString());
-                               Date.add(child.getKey());
-                               l++;
-                       }
-                         temp= dataSnapshot.child("CheckOut");
-                  for(DataSnapshot child : temp.getChildren())
-                 {
+             if(dataSnapshot.getValue()!=null)
+               { Log.e("OnChange", dataSnapshot.getValue().toString());
+               textView.setText("Successful...!!");
+               webView.setVisibility(View.GONE);
+               DataSnapshot temp = dataSnapshot.child("CheckIn");
+               for (DataSnapshot child : temp.getChildren()) {
+                   In.add(child.getValue().toString());
+                   Date.add(child.getKey());
+                   l++;
+               }
+               temp = dataSnapshot.child("CheckOut");
+               for (DataSnapshot child : temp.getChildren()) {
                    Out.add(child.getValue().toString());
 
-                  }
+               }
 
-                       setContentView(R.layout.success_view);
-                       mRecyclerView = findViewById(R.id.recyclerView);
-                       customAdapter = new CustomAdapter(In,Out,Date, l);
-                       layoutManager = new LinearLayoutManager(MainActivity.this);
-                       mRecyclerView.setLayoutManager(layoutManager);
-                       mRecyclerView.setAdapter(customAdapter);
-
+               setContentView(R.layout.success_view);
+               mRecyclerView = findViewById(R.id.recyclerView);
+               customAdapter = new CustomAdapter(In, Out, Date, l);
+               layoutManager = new LinearLayoutManager(MainActivity.this);
+               mRecyclerView.setLayoutManager(layoutManager);
+               mRecyclerView.setAdapter(customAdapter);
+           }else
+             {
+                 textView.setText("No data available");
+                 webView.setVisibility(View.GONE);
+             }
 
            }
 
@@ -184,7 +189,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
 
-
+        int l = getIntent().getIntExtra("Type",1);
+        if(l==1)
         if (!SystemRequirementsChecker.checkWithDefaultDialogs(this)) {
             Log.e("Permission","Denied");
         } else {
@@ -202,14 +208,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if(val!=null)
-            databaseReference.removeEventListener(val);
+        if(proximityContentManager!=null)
+            proximityContentManager.stopContentUpdates();
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if(proximityContentManager!=null)
         proximityContentManager.stopContentUpdates();
 
     }
@@ -218,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
 
         super.onDestroy();
+        if(proximityContentManager!=null)
         proximityContentManager.destroy();
 
     }
