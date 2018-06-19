@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences sharedPreferences=getSharedPreferences("Log",0);
                     SharedPreferences.Editor editor= sharedPreferences.edit();
                     if(sharedPreferences.getString("CheckIn",null)==null)
-                    {   databaseReference.child(UserInfo.getSingleton().Date).child("CheckIn").setValue(strtime, new DatabaseReference.CompletionListener() {
+                    {   databaseReference.child("CheckIn").child(UserInfo.getSingleton().Date).setValue(strtime, new DatabaseReference.CompletionListener() {
                         @Override
                         public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                             if(databaseError==null){
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     });
-                        databaseReference.child(UserInfo.getSingleton().Date).child("CheckOut").setValue("NA", new DatabaseReference.CompletionListener() {
+                        databaseReference.child("CheckOut").child(UserInfo.getSingleton().Date).setValue("NA", new DatabaseReference.CompletionListener() {
                             @Override
                             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                                 if(databaseError==null){
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                     else {
-                        databaseReference.child(UserInfo.getSingleton().Date).child("CheckOut").setValue(strtime, new DatabaseReference.CompletionListener() {
+                        databaseReference.child("CheckOut").child(UserInfo.getSingleton().Date).setValue(strtime, new DatabaseReference.CompletionListener() {
                             @Override
                             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                                 if(databaseError==null)
@@ -133,32 +133,32 @@ public class MainActivity extends AppCompatActivity {
            public void onDataChange(DataSnapshot dataSnapshot) {
 
                    l = 0;
-                   ArrayList<HashMap<String, String>> arr = new ArrayList<>();
+
+                   ArrayList<String> In = new ArrayList<>();
+                   ArrayList<String> Out = new ArrayList<>();
+                   ArrayList<String> Date = new ArrayList<>();
                    Log.e("OnChange", dataSnapshot.getValue().toString());
 
 
                        textView.setText("Successful...!!");
                        webView.setVisibility(View.GONE);
-                       for (DataSnapshot child : dataSnapshot.getChildren()) {
-                           HashMap<String, String> hm = new HashMap<>();
-                           hm.put("Date", child.getKey());
-
-                          for(DataSnapshot child1: child.getChildren())
-                           {
-                                if(child1.getKey().equals("CheckOut"))
-                                hm.put("CheckOut", child1.getValue().toString());
-                                else
-                               hm.put("CheckIn", child1.getValue().toString());
-
-
-
-                           }
-                           l++;
-                           arr.add(hm);
+                       DataSnapshot temp= dataSnapshot.child("CheckIn");
+                       for(DataSnapshot child : temp.getChildren())
+                       {
+                               In.add(child.getValue().toString());
+                               Date.add(child.getKey());
+                               l++;
                        }
+                         temp= dataSnapshot.child("CheckOut");
+                  for(DataSnapshot child : temp.getChildren())
+                 {
+                   Out.add(child.getValue().toString());
+
+                  }
+
                        setContentView(R.layout.success_view);
                        mRecyclerView = findViewById(R.id.recyclerView);
-                       customAdapter = new CustomAdapter(arr, l);
+                       customAdapter = new CustomAdapter(In,Out,Date, l);
                        layoutManager = new LinearLayoutManager(MainActivity.this);
                        mRecyclerView.setLayoutManager(layoutManager);
                        mRecyclerView.setAdapter(customAdapter);
@@ -202,7 +202,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-
+        if(val!=null)
+            databaseReference.removeEventListener(val);
 
     }
 

@@ -12,11 +12,15 @@ import java.util.HashMap;
 
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder>
 {
-    private ArrayList<HashMap<String,String>> arr= new ArrayList<>();
+    private ArrayList<String> In= new ArrayList<>();
+    private ArrayList<String> Out= new ArrayList<>();
+    private ArrayList<String> date= new ArrayList<>();
     private int length;
-    CustomAdapter(ArrayList<HashMap<String,String>> arr,int length)
+    CustomAdapter(ArrayList<String> In,ArrayList<String> Out,ArrayList<String> date,int length)
     {
-        this.arr=arr;
+        this.In=In;
+        this.Out=Out;
+        this.date=date;
         this.length=length;
     }
     @NonNull
@@ -28,9 +32,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-                    holder.t1.setText(arr.get(position).get("Date"));
-                    holder.t2.setText("IN: "+arr.get(position).get("CheckIn"));
-                    holder.t3.setText("OUT: "+arr.get(position).get("CheckOut"));
+                 holder.t1.setText(date.get(position));
+                 holder.t2.setText("IN: "+In.get(position));
+                 holder.t3.setText("OUT: "+Out.get(position));
     }
 
     @Override

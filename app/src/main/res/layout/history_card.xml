@@ -10,27 +10,29 @@
     app:cardElevation="2dp"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <LinearLayout
+    <TextView
+        android:id="@+id/date"
+        android:layout_marginTop="8dp"
+        android:text="19-JUN-1995"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="32dp"
-        android:layout_marginTop="32dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/date"
+        android:layout_height="wrap_content" />
+    <LinearLayout
 
-            android:text="19-JUN-1995"
-            android:layout_marginStart="16dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        android:layout_gravity="center"
+        android:layout_margin="32dp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
         <TextView
-            android:text="IN: 23293892183"
+            android:text="IN: 11:43:38"
             android:id="@+id/checkin"
             android:layout_marginStart="16dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <TextView
-            android:text="OUT: 23293892183"
+            android:text="OUT: 12:48:24"
             android:id="@+id/checkout"
             android:layout_marginStart="16dp"
             android:layout_width="wrap_content"
